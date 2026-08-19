@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+
+# local, machine-specific
+NEON-original.midi.csv
+*.midi.csv
+
+# lokale noter, ikke med i repoet
+*.local.md

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Colour Chart</title>
+<meta name="description" content="All 64 colours the Reloop Neon can display, with velocity values, pad addresses and the protocol behind them.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --panel:#0E1013; --panel-ink:#C7CCD4; --panel-mute:#767E8B; --panel-rule:#22262E;
+  --bg:#FBFAF7; --surface:#FFFFFF; --text:#15171B; --mute:#6C727A;
+  --rule:#E4E2DC; --accent:#D96A00; --blue:#1E7FD8;
+  --measure:68ch; --wide:1120px;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111317; --surface:#181B21; --text:#E7E9EC; --mute:#878E98;
+    --rule:#252932; --accent:#FF9A2E; --blue:#4FA8FF;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111317; --surface:#181B21; --text:#E7E9EC; --mute:#878E98;
+  --rule:#252932; --accent:#FF9A2E; --blue:#4FA8FF;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:var(--wide);margin:0 auto;padding:0 24px}
+.measure{max-width:var(--measure)}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;margin:0}
+h1{font-size:clamp(2.1rem,5vw,3.1rem);font-weight:700;letter-spacing:-.02em;line-height:1.05}
+h2{font-size:1.45rem;font-weight:700;letter-spacing:-.01em}
+h4{font-family:var(--f-data);font-size:.75rem;font-weight:500;text-transform:uppercase;
+  letter-spacing:.11em;color:var(--panel-mute)}
+p{margin:0}
+code{font-family:var(--f-data);font-size:.92em}
+a{color:var(--accent)}
+.head{border-bottom:1px solid var(--rule);padding:64px 0 40px;margin-bottom:56px}
+.eyebrow{font-family:var(--f-data);font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.16em;color:var(--accent);display:block;margin-bottom:18px}
+.head p{color:var(--mute);margin-top:18px;font-size:1.08rem}
+.proto{margin-top:34px;background:var(--panel);color:var(--panel-ink);border-radius:4px;
+  padding:22px 24px;font-family:var(--f-data);font-size:.9rem;line-height:1.9;overflow-x:auto}
+.proto b{color:#fff;font-weight:500}
+.proto .k{color:var(--panel-mute)}
+section{margin-bottom:64px;display:flex;flex-direction:column;gap:22px}
+.sig{display:flex;flex-direction:column;gap:10px}
+.bits{display:flex;gap:5px;font-family:var(--f-data);overflow-x:auto;padding-bottom:4px}
+.bit{min-width:62px;flex:1;text-align:center}
+.bit .nr{font-size:.66rem;color:var(--mute);letter-spacing:.08em}
+.bit .bx{border:1px solid var(--rule);background:var(--surface);border-radius:3px;
+  padding:14px 0;margin:5px 0;font-size:.95rem;font-weight:500}
+.bit .fl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em}
+.bit.r .bx{border-color:#D9534F;color:#D9534F} .bit.r .fl{color:#D9534F}
+.bit.g .bx{border-color:#3E9B4F;color:#3E9B4F} .bit.g .fl{color:#3E9B4F}
+.bit.b .bx{border-color:var(--blue);color:var(--blue)} .bit.b .fl{color:var(--blue)}
+.bit.un .bx{color:var(--mute);border-style:dashed} .bit.un .fl{color:var(--mute)}
+.named{display:grid;gap:2px;background:var(--panel-rule);border:1px solid var(--panel-rule);
+  grid-template-columns:repeat(auto-fill,minmax(196px,1fr));border-radius:5px;overflow:hidden}
+.card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--panel)}
+.card .sw{width:34px;height:34px;border-radius:5px;flex:none;background:var(--c);
+  box-shadow:0 0 16px -2px var(--c)}
+.card.is-off .sw{box-shadow:none;border:1px solid var(--panel-rule)}
+.card .meta{display:flex;flex-direction:column;min-width:0}
+.card .n{font-family:var(--f-display);font-weight:600;font-size:.9rem;color:#fff;line-height:1.3}
+.card .d{font-family:var(--f-data);font-size:.7rem;color:var(--panel-mute);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.cube{background:var(--panel);border:1px solid var(--panel-rule);border-radius:5px;padding:26px;
+  display:grid;gap:30px;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));overflow-x:auto}
+.blk{display:flex;flex-direction:column;gap:8px}
+.rw{display:flex;align-items:center;gap:6px}
+.ax{font-family:var(--f-data);font-size:.63rem;color:var(--panel-mute);width:20px;flex:none;text-align:center}
+.rw.hd .ax{width:auto;flex:1}
+.rw.hd .ax:first-child{width:20px;flex:none}
+.chip{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default}
+.chip .sw{width:100%;height:30px;border-radius:4px;background:var(--c);box-shadow:0 0 14px -4px var(--c)}
+.chip.is-named .sw{outline:1.5px solid rgba(255,255,255,.55);outline-offset:1.5px}
+.chip.is-off .sw{box-shadow:none;border:1px solid var(--panel-rule)}
+.chip .v{font-family:var(--f-data);font-size:.62rem;color:var(--panel-mute);font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:5px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--rule);white-space:nowrap}
+thead th{font-family:var(--f-data);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--mute);font-weight:500;background:var(--surface)}
+tbody tr:last-child td{border-bottom:none}
+td.m{font-family:var(--f-data);font-variant-numeric:tabular-nums}
+td .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.foot{border-top:1px solid var(--rule);padding:30px 0 70px;color:var(--mute);font-size:.86rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="eyebrow">Reloop Neon &middot; reverse-engineered</span>
+    <h1>Neon Colour Chart</h1>
+    <p class="measure">Reloop's official MIDI map does not describe the RGB pads &mdash; only the five small status LEDs. This is the protocol, measured on the hardware.</p>
+    <div class="proto">
+<b>9<span class="k">d</span>&nbsp;&nbsp;<span class="k">nn</span>&nbsp;&nbsp;<span class="k">vv</span></b><br>
+<span class="k">&#9474;&nbsp;&nbsp;&nbsp;&#9474;&nbsp;&nbsp;&nbsp;&#9492;&#9472; velocity = (R&lt;&lt;4) | (G&lt;&lt;2) | B &nbsp;&mdash; each channel 0-3</span><br>
+<span class="k">&#9474;&nbsp;&nbsp;&nbsp;&#9492;&#9472;&#9472;&#9472;&#9472;&#9472; note number for the pad in the active mode</span><br>
+<span class="k">&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472; 97 98 99 9A = deck A B C D</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sig measure">
+      <h2>Colour lives in the velocity byte</h2>
+      <p>Not as a palette index, but as three fields of two bits each. That is why 127 produces white: the low six bits are all set.</p>
+    </div>
+    <div class="bits">
+      <div class="bit un"><div class="nr">bit 6</div><div class="bx">&mdash;</div><div class="fl">unused</div></div>
+      <div class="bit r"><div class="nr">bit 5</div><div class="bx">R</div><div class="fl">red</div></div>
+      <div class="bit r"><div class="nr">bit 4</div><div class="bx">R</div><div class="fl">0-3</div></div>
+      <div class="bit g"><div class="nr">bit 3</div><div class="bx">G</div><div class="fl">green</div></div>
+      <div class="bit g"><div class="nr">bit 2</div><div class="bx">G</div><div class="fl">0-3</div></div>
+      <div class="bit b"><div class="nr">bit 1</div><div class="bx">B</div><div class="fl">blue</div></div>
+      <div class="bit b"><div class="nr">bit 0</div><div class="bx">B</div><div class="fl">0-3</div></div>
+    </div>
+    <p class="measure" style="color:var(--mute);font-size:.92rem">Full brightness means at least one channel sits at 3. Orange <code>R3 G1 B0</code> is exactly as bright as pure red &mdash; the two bits of green make it orange, not dimmer.</p>
+  </section>
+
+  <section>
+    <div class="sig measure">
+      <h2>The 16 the bridge names</h2>
+      <p>Names as they appear in <code>neon-bridge.js</code>. <code>DIM</code> is the one deliberately reduced colour.</p>
+    </div>
+    <div class="named"><div class="card" style="--c:#FF0000"><span class="sw"></span><div class="meta"><span class="n">RED</span><span class="d">48 &middot; 0x30 &middot; R3 G0 B0</span></div></div><div class="card" style="--c:#FF5A00"><span class="sw"></span><div class="meta"><span class="n">ORANGE</span><span class="d">52 &middot; 0x34 &middot; R3 G1 B0</span></div></div><div class="card" style="--c:#FFAA00"><span class="sw"></span><div class="meta"><span class="n">AMBER</span><span class="d">56 &middot; 0x38 &middot; R3 G2 B0</span></div></div><div class="card" style="--c:#FFFF00"><span class="sw"></span><div class="meta"><span class="n">YELLOW</span><span class="d">60 &middot; 0x3C &middot; R3 G3 B0</span></div></div><div class="card" style="--c:#AAFF00"><span class="sw"></span><div class="meta"><span class="n">LIME</span><span class="d">44 &middot; 0x2C &middot; R2 G3 B0</span></div></div><div class="card" style="--c:#00FF00"><span class="sw"></span><div class="meta"><span class="n">GREEN</span><span class="d">12 &middot; 0x0C &middot; R0 G3 B0</span></div></div><div class="card" style="--c:#00FFAA"><span class="sw"></span><div class="meta"><span class="n">MINT</span><span class="d">14 &middot; 0x0E &middot; R0 G3 B2</span></div></div><div class="card" style="--c:#00FFFF"><span class="sw"></span><div class="meta"><span class="n">CYAN</span><span class="d">15 &middot; 0x0F &middot; R0 G3 B3</span></div></div><div class="card" style="--c:#00AAFF"><span class="sw"></span><div class="meta"><span class="n">SKY</span><span class="d">11 &middot; 0x0B &middot; R0 G2 B3</span></div></div><div class="card" style="--c:#0000FF"><span class="sw"></span><div class="meta"><span class="n">BLUE</span><span class="d">3 &middot; 0x03 &middot; R0 G0 B3</span></div></div><div class="card" style="--c:#AA00FF"><span class="sw"></span><div class="meta"><span class="n">PURPLE</span><span class="d">35 &middot; 0x23 &middot; R2 G0 B3</span></div></div><div class="card" style="--c:#FF00FF"><span class="sw"></span><div class="meta"><span class="n">MAGENTA</span><span class="d">51 &middot; 0x33 &middot; R3 G0 B3</span></div></div><div class="card" style="--c:#FF5AAA"><span class="sw"></span><div class="meta"><span class="n">PINK</span><span class="d">54 &middot; 0x36 &middot; R3 G1 B2</span></div></div><div class="card" style="--c:#FFFFFF"><span class="sw"></span><div class="meta"><span class="n">WHITE</span><span class="d">63 &middot; 0x3F &middot; R3 G3 B3</span></div></div><div class="card" style="--c:#5A5A5A"><span class="sw"></span><div class="meta"><span class="n">DIM</span><span class="d">21 &middot; 0x15 &middot; R1 G1 B1</span></div></div><div class="card is-off" style="--c:#000000"><span class="sw"></span><div class="meta"><span class="n">OFF</span><span class="d">0 &middot; 0x00 &middot; R0 G0 B0</span></div></div></div>
+  </section>
+
+  <section>
+    <div class="sig measure">
+      <h2>All 64</h2>
+      <p>The colour space is a 4 &times; 4 &times; 4 cube, sliced here by red level, with green down the side and blue across the top. The number under each swatch is its velocity. White outlines mark the ones the bridge names.</p>
+    </div>
+    <div class="cube"><div class="blk"><h4>Red = 0</h4><div class="rw hd"><span class="ax"></span><span class="ax">B0</span><span class="ax">B1</span><span class="ax">B2</span><span class="ax">B3</span></div><div class="rw"><span class="ax">G0</span><div class="chip is-off" style="--c:#000000" title="velocity 0 &middot; 0x00 &middot; R0 G0 B0 &middot; OFF"><span class="sw"></span><span class="v">0</span></div><div class="chip" style="--c:#00005A" title="velocity 1 &middot; 0x01 &middot; R0 G0 B1"><span class="sw"></span><span class="v">1</span></div><div class="chip" style="--c:#0000AA" title="velocity 2 &middot; 0x02 &middot; R0 G0 B2"><span class="sw"></span><span class="v">2</span></div><div class="chip is-named" style="--c:#0000FF" title="velocity 3 &middot; 0x03 &middot; R0 G0 B3 &middot; BLUE"><span class="sw"></span><span class="v">3</span></div></div><div class="rw"><span class="ax">G1</span><div class="chip" style="--c:#005A00" title="velocity 4 &middot; 0x04 &middot; R0 G1 B0"><span class="sw"></span><span class="v">4</span></div><div class="chip" style="--c:#005A5A" title="velocity 5 &middot; 0x05 &middot; R0 G1 B1"><span class="sw"></span><span class="v">5</span></div><div class="chip" style="--c:#005AAA" title="velocity 6 &middot; 0x06 &middot; R0 G1 B2"><span class="sw"></span><span class="v">6</span></div><div class="chip" style="--c:#005AFF" title="velocity 7 &middot; 0x07 &middot; R0 G1 B3"><span class="sw"></span><span class="v">7</span></div></div><div class="rw"><span class="ax">G2</span><div class="chip" style="--c:#00AA00" title="velocity 8 &middot; 0x08 &middot; R0 G2 B0"><span class="sw"></span><span class="v">8</span></div><div class="chip" style="--c:#00AA5A" title="velocity 9 &middot; 0x09 &middot; R0 G2 B1"><span class="sw"></span><span class="v">9</span></div><div class="chip" style="--c:#00AAAA" title="velocity 10 &middot; 0x0A &middot; R0 G2 B2"><span class="sw"></span><span class="v">10</span></div><div class="chip is-named" style="--c:#00AAFF" title="velocity 11 &middot; 0x0B &middot; R0 G2 B3 &middot; SKY"><span class="sw"></span><span class="v">11</span></div></div><div class="rw"><span class="ax">G3</span><div class="chip is-named" style="--c:#00FF00" title="velocity 12 &middot; 0x0C &middot; R0 G3 B0 &middot; GREEN"><span class="sw"></span><span class="v">12</span></div><div class="chip" style="--c:#00FF5A" title="velocity 13 &middot; 0x0D &middot; R0 G3 B1"><span class="sw"></span><span class="v">13</span></div><div class="chip is-named" style="--c:#00FFAA" title="velocity 14 &middot; 0x0E &middot; R0 G3 B2 &middot; MINT"><span class="sw"></span><span class="v">14</span></div><div class="chip is-named" style="--c:#00FFFF" title="velocity 15 &middot; 0x0F &middot; R0 G3 B3 &middot; CYAN"><span class="sw"></span><span class="v">15</span></div></div></div><div class="blk"><h4>Red = 1</h4><div class="rw hd"><span class="ax"></span><span class="ax">B0</span><span class="ax">B1</span><span class="ax">B2</span><span class="ax">B3</span></div><div class="rw"><span class="ax">G0</span><div class="chip" style="--c:#5A0000" title="velocity 16 &middot; 0x10 &middot; R1 G0 B0"><span class="sw"></span><span class="v">16</span></div><div class="chip" style="--c:#5A005A" title="velocity 17 &middot; 0x11 &middot; R1 G0 B1"><span class="sw"></span><span class="v">17</span></div><div class="chip" style="--c:#5A00AA" title="velocity 18 &middot; 0x12 &middot; R1 G0 B2"><span class="sw"></span><span class="v">18</span></div><div class="chip" style="--c:#5A00FF" title="velocity 19 &middot; 0x13 &middot; R1 G0 B3"><span class="sw"></span><span class="v">19</span></div></div><div class="rw"><span class="ax">G1</span><div class="chip" style="--c:#5A5A00" title="velocity 20 &middot; 0x14 &middot; R1 G1 B0"><span class="sw"></span><span class="v">20</span></div><div class="chip is-named" style="--c:#5A5A5A" title="velocity 21 &middot; 0x15 &middot; R1 G1 B1 &middot; DIM"><span class="sw"></span><span class="v">21</span></div><div class="chip" style="--c:#5A5AAA" title="velocity 22 &middot; 0x16 &middot; R1 G1 B2"><span class="sw"></span><span class="v">22</span></div><div class="chip" style="--c:#5A5AFF" title="velocity 23 &middot; 0x17 &middot; R1 G1 B3"><span class="sw"></span><span class="v">23</span></div></div><div class="rw"><span class="ax">G2</span><div class="chip" style="--c:#5AAA00" title="velocity 24 &middot; 0x18 &middot; R1 G2 B0"><span class="sw"></span><span class="v">24</span></div><div class="chip" style="--c:#5AAA5A" title="velocity 25 &middot; 0x19 &middot; R1 G2 B1"><span class="sw"></span><span class="v">25</span></div><div class="chip" style="--c:#5AAAAA" title="velocity 26 &middot; 0x1A &middot; R1 G2 B2"><span class="sw"></span><span class="v">26</span></div><div class="chip" style="--c:#5AAAFF" title="velocity 27 &middot; 0x1B &middot; R1 G2 B3"><span class="sw"></span><span class="v">27</span></div></div><div class="rw"><span class="ax">G3</span><div class="chip" style="--c:#5AFF00" title="velocity 28 &middot; 0x1C &middot; R1 G3 B0"><span class="sw"></span><span class="v">28</span></div><div class="chip" style="--c:#5AFF5A" title="velocity 29 &middot; 0x1D &middot; R1 G3 B1"><span class="sw"></span><span class="v">29</span></div><div class="chip" style="--c:#5AFFAA" title="velocity 30 &middot; 0x1E &middot; R1 G3 B2"><span class="sw"></span><span class="v">30</span></div><div class="chip" style="--c:#5AFFFF" title="velocity 31 &middot; 0x1F &middot; R1 G3 B3"><span class="sw"></span><span class="v">31</span></div></div></div><div class="blk"><h4>Red = 2</h4><div class="rw hd"><span class="ax"></span><span class="ax">B0</span><span class="ax">B1</span><span class="ax">B2</span><span class="ax">B3</span></div><div class="rw"><span class="ax">G0</span><div class="chip" style="--c:#AA0000" title="velocity 32 &middot; 0x20 &middot; R2 G0 B0"><span class="sw"></span><span class="v">32</span></div><div class="chip" style="--c:#AA005A" title="velocity 33 &middot; 0x21 &middot; R2 G0 B1"><span class="sw"></span><span class="v">33</span></div><div class="chip" style="--c:#AA00AA" title="velocity 34 &middot; 0x22 &middot; R2 G0 B2"><span class="sw"></span><span class="v">34</span></div><div class="chip is-named" style="--c:#AA00FF" title="velocity 35 &middot; 0x23 &middot; R2 G0 B3 &middot; PURPLE"><span class="sw"></span><span class="v">35</span></div></div><div class="rw"><span class="ax">G1</span><div class="chip" style="--c:#AA5A00" title="velocity 36 &middot; 0x24 &middot; R2 G1 B0"><span class="sw"></span><span class="v">36</span></div><div class="chip" style="--c:#AA5A5A" title="velocity 37 &middot; 0x25 &middot; R2 G1 B1"><span class="sw"></span><span class="v">37</span></div><div class="chip" style="--c:#AA5AAA" title="velocity 38 &middot; 0x26 &middot; R2 G1 B2"><span class="sw"></span><span class="v">38</span></div><div class="chip" style="--c:#AA5AFF" title="velocity 39 &middot; 0x27 &middot; R2 G1 B3"><span class="sw"></span><span class="v">39</span></div></div><div class="rw"><span class="ax">G2</span><div class="chip" style="--c:#AAAA00" title="velocity 40 &middot; 0x28 &middot; R2 G2 B0"><span class="sw"></span><span class="v">40</span></div><div class="chip" style="--c:#AAAA5A" title="velocity 41 &middot; 0x29 &middot; R2 G2 B1"><span class="sw"></span><span class="v">41</span></div><div class="chip" style="--c:#AAAAAA" title="velocity 42 &middot; 0x2A &middot; R2 G2 B2"><span class="sw"></span><span class="v">42</span></div><div class="chip" style="--c:#AAAAFF" title="velocity 43 &middot; 0x2B &middot; R2 G2 B3"><span class="sw"></span><span class="v">43</span></div></div><div class="rw"><span class="ax">G3</span><div class="chip is-named" style="--c:#AAFF00" title="velocity 44 &middot; 0x2C &middot; R2 G3 B0 &middot; LIME"><span class="sw"></span><span class="v">44</span></div><div class="chip" style="--c:#AAFF5A" title="velocity 45 &middot; 0x2D &middot; R2 G3 B1"><span class="sw"></span><span class="v">45</span></div><div class="chip" style="--c:#AAFFAA" title="velocity 46 &middot; 0x2E &middot; R2 G3 B2"><span class="sw"></span><span class="v">46</span></div><div class="chip" style="--c:#AAFFFF" title="velocity 47 &middot; 0x2F &middot; R2 G3 B3"><span class="sw"></span><span class="v">47</span></div></div></div><div class="blk"><h4>Red = 3</h4><div class="rw hd"><span class="ax"></span><span class="ax">B0</span><span class="ax">B1</span><span class="ax">B2</span><span class="ax">B3</span></div><div class="rw"><span class="ax">G0</span><div class="chip is-named" style="--c:#FF0000" title="velocity 48 &middot; 0x30 &middot; R3 G0 B0 &middot; RED"><span class="sw"></span><span class="v">48</span></div><div class="chip" style="--c:#FF005A" title="velocity 49 &middot; 0x31 &middot; R3 G0 B1"><span class="sw"></span><span class="v">49</span></div><div class="chip" style="--c:#FF00AA" title="velocity 50 &middot; 0x32 &middot; R3 G0 B2"><span class="sw"></span><span class="v">50</span></div><div class="chip is-named" style="--c:#FF00FF" title="velocity 51 &middot; 0x33 &middot; R3 G0 B3 &middot; MAGENTA"><span class="sw"></span><span class="v">51</span></div></div><div class="rw"><span class="ax">G1</span><div class="chip is-named" style="--c:#FF5A00" title="velocity 52 &middot; 0x34 &middot; R3 G1 B0 &middot; ORANGE"><span class="sw"></span><span class="v">52</span></div><div class="chip" style="--c:#FF5A5A" title="velocity 53 &middot; 0x35 &middot; R3 G1 B1"><span class="sw"></span><span class="v">53</span></div><div class="chip is-named" style="--c:#FF5AAA" title="velocity 54 &middot; 0x36 &middot; R3 G1 B2 &middot; PINK"><span class="sw"></span><span class="v">54</span></div><div class="chip" style="--c:#FF5AFF" title="velocity 55 &middot; 0x37 &middot; R3 G1 B3"><span class="sw"></span><span class="v">55</span></div></div><div class="rw"><span class="ax">G2</span><div class="chip is-named" style="--c:#FFAA00" title="velocity 56 &middot; 0x38 &middot; R3 G2 B0 &middot; AMBER"><span class="sw"></span><span class="v">56</span></div><div class="chip" style="--c:#FFAA5A" title="velocity 57 &middot; 0x39 &middot; R3 G2 B1"><span class="sw"></span><span class="v">57</span></div><div class="chip" style="--c:#FFAAAA" title="velocity 58 &middot; 0x3A &middot; R3 G2 B2"><span class="sw"></span><span class="v">58</span></div><div class="chip" style="--c:#FFAAFF" title="velocity 59 &middot; 0x3B &middot; R3 G2 B3"><span class="sw"></span><span class="v">59</span></div></div><div class="rw"><span class="ax">G3</span><div class="chip is-named" style="--c:#FFFF00" title="velocity 60 &middot; 0x3C &middot; R3 G3 B0 &middot; YELLOW"><span class="sw"></span><span class="v">60</span></div><div class="chip" style="--c:#FFFF5A" title="velocity 61 &middot; 0x3D &middot; R3 G3 B1"><span class="sw"></span><span class="v">61</span></div><div class="chip" style="--c:#FFFFAA" title="velocity 62 &middot; 0x3E &middot; R3 G3 B2"><span class="sw"></span><span class="v">62</span></div><div class="chip is-named" style="--c:#FFFFFF" title="velocity 63 &middot; 0x3F &middot; R3 G3 B3 &middot; WHITE"><span class="sw"></span><span class="v">63</span></div></div></div></div>
+  </section>
+
+  <section>
+    <div class="sig measure">
+      <h2>Pad addresses</h2>
+      <p>Which note a pad sends and listens on depends on the performance mode selected on the unit. Eight consecutive notes per bank, pad 1 first.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Layer</th><th>Sampler</th><th>Slicer</th><th>Hot Cue</th><th>Hot Loop</th></tr></thead>
+        <tbody>
+          <tr><td>1st</td><td class="m">00-07</td><td class="m">08-0F</td><td class="m">10-17</td><td class="m">18-1F</td></tr>
+          <tr><td>1st + shift</td><td class="m">20-27</td><td class="m">28-2F</td><td class="m">30-37</td><td class="m">38-3F</td></tr>
+          <tr><td>2nd + shift</td><td class="m">40-47</td><td class="m">48-4F</td><td class="m">50-57</td><td class="m">58-5F</td></tr>
+          <tr><td>2nd</td><td class="m">60-67</td><td class="m">68-6F</td><td class="m">70-77</td><td class="m">78-7F</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="measure" style="color:var(--mute);font-size:.92rem">Deck comes from the status byte: <code>97</code> A, <code>98</code> B, <code>99</code> C, <code>9A</code> D. So Hot Cue pad 3 on deck B is <code>98 12 vv</code>.</p>
+  </section>
+
+  <section>
+    <div class="sig measure">
+      <h2>The five status LEDs</h2>
+      <p>The small elongated indicators above each pad in the top row, below each pad in the bottom row. Five notes per pad, all on channel <code>9B</code>, with colours wired in hardware. Velocity controls brightness only.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Pad</th><th>Notes</th><th>Indicator 1-3</th><th>Indicator 4</th><th>Indicator 5</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="m">20-24</td><td><span class="dot" style="background:#2E9BFF"></span>blue</td><td><span class="dot" style="background:#FF8A00"></span>orange</td><td><span class="dot" style="background:#3FBF56"></span>green</td></tr>
+          <tr><td>2</td><td class="m">25-29</td><td colspan="3" style="color:var(--mute)">same pattern on all eight pads</td></tr>
+          <tr><td>3</td><td class="m">2A-2E</td><td colspan="3"></td></tr>
+          <tr><td>4</td><td class="m">2F-33</td><td colspan="3"></td></tr>
+          <tr><td>5</td><td class="m">34-38</td><td colspan="3"></td></tr>
+          <tr><td>6</td><td class="m">39-3D</td><td colspan="3"></td></tr>
+          <tr><td>7</td><td class="m">3E-42</td><td colspan="3"></td></tr>
+          <tr><td>8</td><td class="m">43-47</td><td colspan="3"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="measure" style="color:var(--mute);font-size:.92rem">These are the only LEDs Reloop's MIDI map documents, which is why most people end up looking in the wrong place.</p>
+  </section>
+
+  <footer class="foot measure">
+    Part of <a href="https://github.com/">neon-bridge</a> &middot; MIT licensed &middot;
+    not affiliated with Reloop or AlphaTheta.
+  </footer>
+</div>
+</body>
+</html>
