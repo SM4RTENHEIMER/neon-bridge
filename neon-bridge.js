@@ -51,10 +51,12 @@ for (const [name, v] of Object.entries(C)) {
     console.warn(`warning: colour ${name} is not at full intensity`);
 }
 
-// Hot cues get one colour each, by pad number. This is rekordbox's own colour
-// set, in rekordbox's own order (Pink Red Orange Yellow Green Aqua Blue Purple),
-// so the pads line up with what the software shows instead of being one slot off.
-const HOTCUE = [C.PINK, C.RED, C.ORANGE, C.YELLOW, C.GREEN, C.CYAN, C.BLUE, C.PURPLE];
+// Hot cues get one colour each, by pad number, matching the order rekordbox
+// assigns automatically as you set cues 1-8. Note this is NOT the track-colour
+// palette in rekordbox's DJMDCOLOR table (Pink Red Orange Yellow Green Aqua
+// Blue Purple) — auto hot cue colours are a different sequence, read off the
+// rekordbox UI rather than derived.
+const HOTCUE = [C.RED, C.CYAN, C.LIME, C.MAGENTA, C.GREEN, C.ORANGE, C.BLUE, C.YELLOW];
 
 // ─── Rules: rekordbox function name -> colour. First match wins. Edit freely. ───
 const RULES = [

@@ -120,12 +120,20 @@ rekordbox over MIDI.**
 
 ---
 
-## The colour set
+## Two different colour orders
 
-rekordbox's own palette, in order, is **Pink, Red, Orange, Yellow, Green, Aqua,
-Blue, Purple** — eight colours, used for track colours and hot cue colours
-alike. A bridge assigning colours by pad number should follow that order, or
-every pad ends up one slot away from what the software displays.
+rekordbox has more than one colour sequence, and picking the wrong one puts
+every pad a slot or two away from what the software shows.
+
+**Track colours** come from the `DJMDCOLOR` table, in this order: Pink, Red,
+Orange, Yellow, Green, Aqua, Blue, Purple.
+
+**Hot cue colours assigned automatically** as you set cues 1-8 follow a
+different sequence: Red, Cyan, Lime, Magenta, Green, Orange, Blue, Yellow.
+This one is read off the rekordbox UI — it is not the DJMDCOLOR order, and
+guessing it from the track palette gets it wrong.
+
+A bridge colouring pads by cue number wants the second list.
 
 ---
 
