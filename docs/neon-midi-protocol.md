@@ -163,8 +163,26 @@ must send `F0 0A 00 F7` to enable decks 3 & 4. Serato does this on its own.
 Hosts that know nothing about Reloop's link protocol do not, which leaves the
 slave unit inert — `neon-bridge --link` sends it for you.
 
-*Untested: whether a linked pair enumerates as one USB device or two. If you
-have two Neons and a link cable, a report would be welcome.*
+### Two units: linked or separate
+
+A linked pair enumerates as **one** MIDI device. The master aggregates both
+units and presents them over its own USB connection; the decks are separated in
+the status byte, not in the port list.
+
+Giving each unit its own USB cable instead enumerates as **two** devices, both
+reporting the same port name `NEON`. They must therefore be told apart by port
+index, not by name.
+
+Either way the units are distinguished by deck. Each one announces its current
+deck as you press its DECK button — the status byte of everything it sends
+moves through `93`/`94`/`95`/`96` for buttons and `97`/`98`/`99`/`9A` for pads.
+
+Useful when driving two units: **a Neon stores LED state per deck and displays
+only the active one.** Sending the full LED state for every deck to both units
+therefore needs no routing — each unit shows the deck it is set to.
+
+Do not use the link cable and two USB cables at the same time. One signal path
+at a time.
 
 ---
 
