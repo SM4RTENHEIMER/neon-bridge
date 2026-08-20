@@ -261,20 +261,28 @@ function createBridge(virtualName, units) {
   // rekordbox never hears about it — so the pads go dark and stay dark. Keeping
   // the last value sent for every address lets the bridge restore it.
   const lastSent = new Map();
-  const send = m => {
+  const raw  = m => { for (const to of ports) to.sendMessage(m); };
+  const send = m => {                       // cache only what rekordbox drives
     if (m.length === 3 && (m[0] & 0xF0) === 0x90) lastSent.set(`${m[0]},${m[1]}`, m[2]);
-    for (const to of ports) to.sendMessage(m);
+    raw(m);
   };
 
   const replayTimer = [];
   const replay = i => {
     const to = ports[i];
     if (!to || !lastSent.size) return;
-    for (const [key, vel] of lastSent) {
+    const msgs = [...lastSent].map(([key, vel]) => {
       const [st, note] = key.split(',').map(Number);
-      to.sendMessage([st, note, vel]);
-    }
-    say(`  unit ${i + 1} changed deck or mode — restored ${lastSent.size} LED states`);
+      return [st, note, vel];
+    });
+    // Paced in small batches: a burst of several hundred messages is enough to
+    // overrun the controller's buffer, and dropped messages look like dead pads.
+    const BATCH = 24;
+    (function pump(n) {
+      for (let k = n; k < Math.min(n + BATCH, msgs.length); k++) to.sendMessage(msgs[k]);
+      if (n + BATCH < msgs.length) setTimeout(() => pump(n + BATCH), 8);
+    })(0);
+    say(`  unit ${i + 1} changed deck or mode — restored ${msgs.length} LED states`);
   };
 
   let lookup = readMapping(mappingFile);
@@ -306,11 +314,12 @@ function createBridge(virtualName, units) {
     trace(`rb ${hex(m)}  ->  neon (unchanged)`);
   });
 
-  const allOff = () => {
+  const allOff = () => {                    // not cached: this is not real state
+    lastSent.clear();
     for (const deck of DECKS)
       for (const base of MODE_BASES)
-        for (let i = 0; i < 8; i++) send([deck, base + i, 0]);
-    for (let p = 0x20; p <= 0x47; p++) send([0x9B, p, 0]);   // status LEDs
+        for (let i = 0; i < 8; i++) raw([deck, base + i, 0]);
+    for (let p = 0x20; p <= 0x47; p++) raw([0x9B, p, 0]);    // status LEDs
   };
 
   // Reloop's link protocol: tells a daisy-chained pair that decks 3+4 exist.
