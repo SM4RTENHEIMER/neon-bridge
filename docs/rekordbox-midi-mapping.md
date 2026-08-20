@@ -120,6 +120,15 @@ rekordbox over MIDI.**
 
 ---
 
+## The colour set
+
+rekordbox's own palette, in order, is **Pink, Red, Orange, Yellow, Green, Aqua,
+Blue, Purple** — eight colours, used for track colours and hot cue colours
+alike. A bridge assigning colours by pad number should follow that order, or
+every pad ends up one slot away from what the software displays.
+
+---
+
 ## What this means for third-party RGB pads
 
 Colour has to be decided outside rekordbox. The workable shape is a translating
