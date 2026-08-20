@@ -243,12 +243,39 @@ function createBridge(virtualName, units) {
       toRb.sendMessage(m);
       const deck = DECK_OF[m[0]];
       if (deck && unitDeck[i] !== deck) { unitDeck[i] = deck; reportDecks(); }
+
+      // A button press on 93-96 is a deck or performance-mode change: the unit
+      // has just rearranged its own LEDs, so put the state back.
+      if (m[0] >= 0x93 && m[0] <= 0x96 && m[2] > 0) {
+        clearTimeout(replayTimer[i]);
+        replayTimer[i] = setTimeout(() => replay(i), 200);
+      }
+
       trace(`${tag}neon ${hex(m)}  ->  rb`);
     });
     return to;
   });
 
-  const send = m => { for (const to of ports) to.sendMessage(m); };
+  // rekordbox only sends LED state when something changes. A Neon rearranges
+  // its LEDs in hardware when you press a DECK or performance-mode button, and
+  // rekordbox never hears about it — so the pads go dark and stay dark. Keeping
+  // the last value sent for every address lets the bridge restore it.
+  const lastSent = new Map();
+  const send = m => {
+    if (m.length === 3 && (m[0] & 0xF0) === 0x90) lastSent.set(`${m[0]},${m[1]}`, m[2]);
+    for (const to of ports) to.sendMessage(m);
+  };
+
+  const replayTimer = [];
+  const replay = i => {
+    const to = ports[i];
+    if (!to || !lastSent.size) return;
+    for (const [key, vel] of lastSent) {
+      const [st, note] = key.split(',').map(Number);
+      to.sendMessage([st, note, vel]);
+    }
+    say(`  unit ${i + 1} changed deck or mode — restored ${lastSent.size} LED states`);
+  };
 
   let lookup = readMapping(mappingFile);
 

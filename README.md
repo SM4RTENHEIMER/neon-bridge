@@ -48,6 +48,12 @@ rekordbox maps to `NEON Bridge` and keeps sending 127. The bridge replaces that
 with a real colour on the way to the hardware. Input passes straight through, so
 MIDI learn works normally.
 
+The bridge also remembers the last value sent to every pad. rekordbox only
+emits LED state when something changes, but a Neon rearranges its own LEDs
+whenever you press a DECK or performance-mode button — and rekordbox never
+hears about it, so the pads would go dark and stay dark. The bridge sees the
+button press in the input stream and puts the state back.
+
 Colour follows the **function**, not the address. The bridge reads rekordbox's
 own mapping file, so `PAD3_HotCue` is yellow and `ActivePartVocal` is green no
 matter which pad bank you put them in. Remap in rekordbox and the bridge picks
