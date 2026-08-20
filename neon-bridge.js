@@ -13,10 +13,17 @@
 //  own mapping file and looks up the function name. Remap in rekordbox and the
 //  bridge notices by itself.
 //
-//  Flags:  --show     print the colour assignment and exit, without touching MIDI
-//          --monitor  log every message passing through
-//          --rb       launch rekordbox once the virtual ports exist
-//          --link     send the SysEx that enables decks 3+4 on a daisy-chained pair
+//  With more than one Neon connected, all of them are merged behind a single
+//  virtual device by default. The units are already told apart by the deck in
+//  their status byte, and each Neon stores LED state per deck while showing
+//  only the active one — so LED output can simply go to every unit and land in
+//  the right place. Pass --separate for one virtual device per unit instead.
+//
+//  Flags:  --show      print the colour assignment and exit, without touching MIDI
+//          --monitor   log every message passing through
+//          --rb        launch rekordbox once the virtual ports exist
+//          --link      send the SysEx that enables decks 3+4 on a daisy-chained pair
+//          --separate  give each connected Neon its own virtual device
 //
 const midi = require('@julusian/midi');
 const fs   = require('fs');
@@ -177,26 +184,34 @@ if (devices.length === 0) {
   process.exit(1);
 }
 
-// ─────────────────────────── one bridge per device ───────────────────────────
+// ─────────────────────────── build the bridges ───────────────────────────
 const hex = m => m.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
-const bridges = [];
 
-devices.forEach((device, n) => {
-  const virtualName = n === 0 ? 'NEON Bridge' : `NEON Bridge ${n + 1}`;
+// One virtual device fed by one or more physical units.
+function createBridge(virtualName, units) {
   const mappingFile = path.join(MAPPING_DIR, `${virtualName}.midi.csv`);
 
-  const fromNeon = new midi.Input(),  toNeon = new midi.Output();
-  const fromRb   = new midi.Input(),  toRb   = new midi.Output();
-
-  fromNeon.openPort(device.in);
-  toNeon.openPort(device.out);
-  fromNeon.ignoreTypes(false, true, true);
+  const toRb = new midi.Output(), fromRb = new midi.Input();
   toRb.openVirtualPort(virtualName);
   fromRb.openVirtualPort(virtualName);
   fromRb.ignoreTypes(false, true, true);
 
+  const ports = units.map((u, i) => {
+    const from = new midi.Input(), to = new midi.Output();
+    from.openPort(u.in);
+    to.openPort(u.out);
+    from.ignoreTypes(false, true, true);
+    const tag = units.length > 1 ? `[unit ${i + 1}] ` : '';
+    from.on('message', (dt, m) => {          // merged: every unit feeds one port
+      toRb.sendMessage(m);
+      if (MONITOR) console.log(`${tag}neon ${hex(m)}  ->  rb`);
+    });
+    return to;
+  });
+
+  const send = m => { for (const to of ports) to.sendMessage(m); };
+
   let lookup = readMapping(mappingFile);
-  const tag = devices.length > 1 ? `[${n + 1}] ` : '';
 
   const colorAt = (status, note) => {
     const hit = lookup.get(`${status},${note}`);
@@ -215,31 +230,28 @@ devices.forEach((device, n) => {
       const color = colorAt(st, note);
       if (color !== null) {
         const out = (isOff || vel === 0) ? 0 : color;
-        toNeon.sendMessage([st, note, out]);
-        if (MONITOR) console.log(`${tag}rb ${hex(m)}  ->  neon ${hex([st, note, out])}   ${out ? (COLOR_NAME[out] || out) : 'off'}`);
+        send([st, note, out]);
+        if (MONITOR) console.log(`rb ${hex(m)}  ->  neon ${hex([st, note, out])}   ${out ? (COLOR_NAME[out] || out) : 'off'}`);
         return;
       }
     }
-    toNeon.sendMessage(m);                          // everything else passes through
-    if (MONITOR) console.log(`${tag}rb ${hex(m)}  ->  neon (unchanged)`);
-  });
-
-  fromNeon.on('message', (dt, m) => {
-    toRb.sendMessage(m);
-    if (MONITOR) console.log(`${tag}neon ${hex(m)}  ->  rb`);
+    send(m);                                        // everything else passes through
+    if (MONITOR) console.log(`rb ${hex(m)}  ->  neon (unchanged)`);
   });
 
   const allOff = () => {
     for (const deck of DECKS)
       for (const base of MODE_BASES)
-        for (let i = 0; i < 8; i++) toNeon.sendMessage([deck, base + i, 0]);
-    for (let p = 0x20; p <= 0x47; p++) toNeon.sendMessage([0x9B, p, 0]);  // status LEDs
+        for (let i = 0; i < 8; i++) send([deck, base + i, 0]);
+    for (let p = 0x20; p <= 0x47; p++) send([0x9B, p, 0]);   // status LEDs
   };
 
   // Reloop's link protocol: tells a daisy-chained pair that decks 3+4 exist.
-  const enableDecks34 = () => toNeon.sendMessage([0xF0, 0x0A, 0x00, 0xF7]);
+  const enableDecks34 = () => send([0xF0, 0x0A, 0x00, 0xF7]);
 
   const summary = () => {
+    const feeds = units.length > 1 ? ` (${units.length} units merged)` : '';
+    console.log(`  "${virtualName}"${feeds}`);
     if (lookup.size === 0) {
       console.log(`   ${mappingFile.replace(os.homedir(), '~')}`);
       console.log('   (no mapping found — using mode palettes)');
@@ -255,13 +267,18 @@ devices.forEach((device, n) => {
       const fresh = readMapping(mappingFile);
       if (fresh.size) {
         lookup = fresh;
-        console.log(`\n${tag}mapping changed — ${lookup.size} pads re-coloured`);
+        console.log(`\nmapping changed — ${lookup.size} pads re-coloured`);
       }
     });
   } catch {}
 
-  bridges.push({ allOff, enableDecks34, summary, virtualName, deviceName: device.name });
-});
+  return { allOff, enableDecks34, summary };
+}
+
+// Merged by default; --separate gives each unit its own virtual device.
+const bridges = process.argv.includes('--separate')
+  ? devices.map((d, i) => createBridge(i === 0 ? 'NEON Bridge' : `NEON Bridge ${i + 1}`, [d]))
+  : [createBridge('NEON Bridge', devices)];
 
 // ─────────────────────────── start up, shut down ───────────────────────────
 for (const b of bridges) b.allOff();
@@ -271,12 +288,8 @@ if (process.argv.includes('--link')) {
   console.log('link mode: sent F0 0A 00 F7 — decks 3+4 enabled\n');
 }
 
-console.log(`bridge running — ${bridges.length} device${bridges.length > 1 ? 's' : ''}:\n`);
-for (const b of bridges) {
-  console.log(`  ${b.deviceName}  ->  "${b.virtualName}"`);
-  b.summary();
-  console.log();
-}
+console.log(`bridge running — ${devices.length} Neon${devices.length > 1 ? 's' : ''} connected:\n`);
+for (const b of bridges) { b.summary(); console.log(); }
 
 // rekordbox enumerates MIDI devices at launch, so the order cannot be fixed later.
 if (process.argv.includes('--rb')) {
