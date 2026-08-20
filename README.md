@@ -53,9 +53,6 @@ own mapping file, so `PAD3_HotCue` is yellow and `ActivePartVocal` is green no
 matter which pad bank you put them in. Remap in rekordbox and the bridge picks
 it up within a couple of seconds — no restart.
 
-Multiple Neons each get their own virtual device (`NEON Bridge`,
-`NEON Bridge 2`, …) so they can be mapped separately.
-
 ---
 
 ## Setup
@@ -90,6 +87,7 @@ node neon-bridge.js --monitor
 | `--monitor` | log every message passing through |
 | `--rb` | launch rekordbox once the virtual ports exist |
 | `--link` | send the SysEx that enables decks 3+4 on a daisy-chained pair |
+| `--separate` | give each connected Neon its own virtual device |
 
 ---
 
@@ -123,6 +121,42 @@ chosen by hardware mode.
 
 Rules are code, so changing them needs a restart. The mapping is data and
 reloads by itself.
+
+---
+
+## Two units
+
+Everything above works the same with one Neon. If you have two, connect them
+with a USB cable each — not the link cable, and never both at once.
+
+They are merged behind a single `NEON Bridge` device by default, so you keep one
+mapping. Two things make that work:
+
+- Each unit announces its own deck. Press its DECK button and everything it
+  sends moves to that deck's status byte, so two units never collide.
+- A Neon stores LED state per deck and displays only the active one. Sending
+  every deck's colours to both units therefore needs no routing — each unit
+  shows the deck it is set to.
+
+In rekordbox this is one row per function, with the deck columns filled in:
+
+```
+PAD1_HotCue,,DdjSxPad,,9710,9810,,,,9710,9810,,,Fast;,
+                        ↑     ↑
+                     deck A  deck B
+```
+
+Set one unit to deck A and the other to deck B and both light up correctly.
+
+Pass `--separate` if you would rather have `NEON Bridge` and `NEON Bridge 2` as
+two devices with independent mappings. Worth knowing: both units report the same
+port name, so they are told apart by port index, and that order is not
+guaranteed stable across replugs. Merged mode does not care.
+
+The link cable is the other way to run two units — it presents the pair as a
+single MIDI device, but the host has to send `F0 0A 00 F7` to wake decks 3 and 4,
+which rekordbox never does. `--link` sends it. Two USB cables is the simpler
+path.
 
 ---
 
