@@ -112,6 +112,20 @@ const say = s => {
   try { fs.appendFileSync(LOGFILE, s + '\n'); } catch {}
 };
 
+// Message traffic always goes to the log file, but only to the terminal with
+// --monitor. Capped so a long session cannot fill the disk.
+let traced = 0;
+const TRACE_CAP = 5000;
+const trace = s => {
+  if (MONITOR) console.log(s);
+  if (traced < TRACE_CAP) {
+    try { fs.appendFileSync(LOGFILE, s + '\n'); } catch {}
+    if (++traced === TRACE_CAP) {
+      try { fs.appendFileSync(LOGFILE, `\n[trace stopped after ${TRACE_CAP} messages]\n`); } catch {}
+    }
+  }
+};
+
 // Which deck a unit is on, read from the status byte of anything it sends.
 const DECK_OF = {0x93:'A', 0x94:'B', 0x95:'C', 0x96:'D',
                  0x97:'A', 0x98:'B', 0x99:'C', 0x9A:'D'};
@@ -229,7 +243,7 @@ function createBridge(virtualName, units) {
       toRb.sendMessage(m);
       const deck = DECK_OF[m[0]];
       if (deck && unitDeck[i] !== deck) { unitDeck[i] = deck; reportDecks(); }
-      if (MONITOR) say(`${tag}neon ${hex(m)}  ->  rb`);
+      trace(`${tag}neon ${hex(m)}  ->  rb`);
     });
     return to;
   });
@@ -257,12 +271,12 @@ function createBridge(virtualName, units) {
       if (color !== null) {
         const out = (isOff || vel === 0) ? 0 : color;
         send([st, note, out]);
-        if (MONITOR) say(`rb ${hex(m)}  ->  neon ${hex([st, note, out])}   ${out ? (COLOR_NAME[out] || out) : 'off'}`);
+        trace(`rb ${hex(m)}  ->  neon ${hex([st, note, out])}   ${out ? (COLOR_NAME[out] || out) : 'off'}`);
         return;
       }
     }
     send(m);                                        // everything else passes through
-    if (MONITOR) say(`rb ${hex(m)}  ->  neon (unchanged)`);
+    trace(`rb ${hex(m)}  ->  neon (unchanged)`);
   });
 
   const allOff = () => {
