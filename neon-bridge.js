@@ -105,8 +105,35 @@ const MAPPING_DIR = path.join(os.homedir(),
   'Library/Application Support/Pioneer/rekordbox6/MidiMappings');
 
 // Mirrored to a file so a running bridge can be inspected from outside.
+// The previous session's log is kept rather than overwritten — whatever went
+// wrong last time is usually only visible in the log from last time.
 const LOGFILE = path.join(__dirname, 'bridge.local.log');
-try { fs.writeFileSync(LOGFILE, ''); } catch {}
+const LOGDIR  = path.join(__dirname, 'logs');
+const KEEP    = 20;
+let rotatedTo = null;
+
+try {
+  if (fs.existsSync(LOGFILE) && fs.statSync(LOGFILE).size > 0) {
+    fs.mkdirSync(LOGDIR, { recursive: true });
+    const d = fs.statSync(LOGFILE).mtime;
+    const two = n => String(n).padStart(2, '0');
+    const stamp = `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}` +
+                  `_${two(d.getHours())}${two(d.getMinutes())}`;
+    let name = `bridge-${stamp}.log`;
+    for (let n = 2; fs.existsSync(path.join(LOGDIR, name)); n++)
+      name = `bridge-${stamp}-${n}.log`;
+    fs.renameSync(LOGFILE, path.join(LOGDIR, name));
+    rotatedTo = name;
+
+    // Keep the newest KEEP, drop the rest.
+    const old = fs.readdirSync(LOGDIR)
+      .filter(f => /^bridge-.*\.log$/.test(f))
+      .sort()
+      .slice(0, -KEEP);
+    for (const f of old) fs.unlinkSync(path.join(LOGDIR, f));
+  }
+  fs.writeFileSync(LOGFILE, '');
+} catch {}
 const say = s => {
   console.log(s);
   try { fs.appendFileSync(LOGFILE, s + '\n'); } catch {}
@@ -376,6 +403,7 @@ if (process.argv.includes('--link')) {
   console.log('link mode: sent F0 0A 00 F7 — decks 3+4 enabled\n');
 }
 
+if (rotatedTo) say(`previous log kept as logs/${rotatedTo}\n`);
 say(`bridge running — ${devices.length} Neon${devices.length > 1 ? 's' : ''} connected:\n`);
 for (const b of bridges) { b.summary(); console.log(); }
 
