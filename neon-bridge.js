@@ -209,13 +209,25 @@ for (let i = 0; i < scan.getPortCount(); i++)
   if (isNeon(scan.getPortName(i))) devices.push({ in: i, name: scan.getPortName(i) });
 scan.closePort();
 
+// Two Neons report the same port name, so outputs must be paired with inputs
+// by position among the Neon ports — matching on name gives every unit the
+// same output port, and only one of them ever lights.
 const scanOut = new midi.Output();
-for (const d of devices)
-  for (let i = 0; i < scanOut.getPortCount(); i++)
-    if (scanOut.getPortName(i) === d.name) { d.out = i; break; }
+const outPorts = [];
+for (let i = 0; i < scanOut.getPortCount(); i++)
+  if (isNeon(scanOut.getPortName(i))) outPorts.push(i);
+devices.forEach((d, n) => { d.out = outPorts[n]; });
+
+if (outPorts.length !== devices.length)
+  console.warn(`warning: ${devices.length} Neon inputs but ${outPorts.length} outputs — ` +
+               'some units will not light');
 
 if (devices.length === 0) {
   console.error('No Neon found. Is it plugged in?');
+  process.exit(1);
+}
+for (const d of devices) if (d.out === undefined) {
+  console.error('A Neon input has no matching output port. Unplug and replug it.');
   process.exit(1);
 }
 
