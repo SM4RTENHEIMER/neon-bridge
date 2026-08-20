@@ -9,3 +9,4 @@ NEON-original.midi.csv
 *.local.md
 
 bridge.local.log
+logs/
