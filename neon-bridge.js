@@ -51,8 +51,10 @@ for (const [name, v] of Object.entries(C)) {
     console.warn(`warning: colour ${name} is not at full intensity`);
 }
 
-// Hot cues get one colour each, by pad number.
-const HOTCUE = [C.RED, C.ORANGE, C.YELLOW, C.GREEN, C.CYAN, C.BLUE, C.PURPLE, C.MAGENTA];
+// Hot cues get one colour each, by pad number. This is rekordbox's own colour
+// set, in rekordbox's own order (Pink Red Orange Yellow Green Aqua Blue Purple),
+// so the pads line up with what the software shows instead of being one slot off.
+const HOTCUE = [C.PINK, C.RED, C.ORANGE, C.YELLOW, C.GREEN, C.CYAN, C.BLUE, C.PURPLE];
 
 // ─── Rules: rekordbox function name -> colour. First match wins. Edit freely. ───
 const RULES = [

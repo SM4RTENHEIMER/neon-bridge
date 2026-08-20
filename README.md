@@ -110,6 +110,10 @@ const RULES = [
 ];
 ```
 
+Hot cues use rekordbox's own colour set in rekordbox's own order — Pink, Red,
+Orange, Yellow, Green, Aqua, Blue, Purple — so the pads match what the software
+shows rather than sitting one slot off.
+
 Any of the 64 colours is available as `c(r, g, b)` with each channel 0-3. See
 the [colour chart](https://sm4rtenheimerdk.github.io/neon-bridge/) for all of them.
 
