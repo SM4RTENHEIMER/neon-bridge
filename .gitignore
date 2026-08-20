@@ -7,3 +7,5 @@ NEON-original.midi.csv
 
 # lokale noter, ikke med i repoet
 *.local.md
+
+bridge.local.log

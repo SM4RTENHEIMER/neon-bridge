@@ -104,6 +104,27 @@ const MODE_BASES = Object.keys(MODE).map(Number);
 const MAPPING_DIR = path.join(os.homedir(),
   'Library/Application Support/Pioneer/rekordbox6/MidiMappings');
 
+// Mirrored to a file so a running bridge can be inspected from outside.
+const LOGFILE = path.join(__dirname, 'bridge.local.log');
+try { fs.writeFileSync(LOGFILE, ''); } catch {}
+const say = s => {
+  console.log(s);
+  try { fs.appendFileSync(LOGFILE, s + '\n'); } catch {}
+};
+
+// Which deck a unit is on, read from the status byte of anything it sends.
+const DECK_OF = {0x93:'A', 0x94:'B', 0x95:'C', 0x96:'D',
+                 0x97:'A', 0x98:'B', 0x99:'C', 0x9A:'D'};
+const unitDeck = [];        // unit index -> 'A'|'B'|'C'|'D'
+
+function reportDecks() {
+  const seen = unitDeck.filter(Boolean);
+  if (seen.length < 2) return;
+  const clash = seen.length !== new Set(seen).size;
+  say('\n  decks: ' + unitDeck.map((d, i) => `unit ${i+1} = ${d || '?'}`).join(', ') +
+      (clash ? '\n  !! two units are on the same deck — press a BANK/DECK button on one of them' : ''));
+}
+
 // ─────────────────────────── read rekordbox's mapping ───────────────────────────
 function colorFor(fn) {
   for (const [re, give] of RULES) {
@@ -187,6 +208,8 @@ if (devices.length === 0) {
 // ─────────────────────────── build the bridges ───────────────────────────
 const hex = m => m.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(' ');
 
+let heardFromRb = false;
+
 // One virtual device fed by one or more physical units.
 function createBridge(virtualName, units) {
   const mappingFile = path.join(MAPPING_DIR, `${virtualName}.midi.csv`);
@@ -204,7 +227,9 @@ function createBridge(virtualName, units) {
     const tag = units.length > 1 ? `[unit ${i + 1}] ` : '';
     from.on('message', (dt, m) => {          // merged: every unit feeds one port
       toRb.sendMessage(m);
-      if (MONITOR) console.log(`${tag}neon ${hex(m)}  ->  rb`);
+      const deck = DECK_OF[m[0]];
+      if (deck && unitDeck[i] !== deck) { unitDeck[i] = deck; reportDecks(); }
+      if (MONITOR) say(`${tag}neon ${hex(m)}  ->  rb`);
     });
     return to;
   });
@@ -221,6 +246,7 @@ function createBridge(virtualName, units) {
   };
 
   fromRb.on('message', (dt, m) => {
+    if (!heardFromRb) { heardFromRb = true; say('\n  rekordbox is sending — mapping is live.'); }
     const [status, note, vel] = m;
     const isOn  = (status & 0xF0) === 0x90;
     const isOff = (status & 0xF0) === 0x80;
@@ -231,12 +257,12 @@ function createBridge(virtualName, units) {
       if (color !== null) {
         const out = (isOff || vel === 0) ? 0 : color;
         send([st, note, out]);
-        if (MONITOR) console.log(`rb ${hex(m)}  ->  neon ${hex([st, note, out])}   ${out ? (COLOR_NAME[out] || out) : 'off'}`);
+        if (MONITOR) say(`rb ${hex(m)}  ->  neon ${hex([st, note, out])}   ${out ? (COLOR_NAME[out] || out) : 'off'}`);
         return;
       }
     }
     send(m);                                        // everything else passes through
-    if (MONITOR) console.log(`rb ${hex(m)}  ->  neon (unchanged)`);
+    if (MONITOR) say(`rb ${hex(m)}  ->  neon (unchanged)`);
   });
 
   const allOff = () => {
@@ -288,7 +314,7 @@ if (process.argv.includes('--link')) {
   console.log('link mode: sent F0 0A 00 F7 — decks 3+4 enabled\n');
 }
 
-console.log(`bridge running — ${devices.length} Neon${devices.length > 1 ? 's' : ''} connected:\n`);
+say(`bridge running — ${devices.length} Neon${devices.length > 1 ? 's' : ''} connected:\n`);
 for (const b of bridges) { b.summary(); console.log(); }
 
 // rekordbox enumerates MIDI devices at launch, so the order cannot be fixed later.
@@ -296,8 +322,16 @@ if (process.argv.includes('--rb')) {
   require('child_process')
     .spawn('open', ['-a', 'rekordbox'], { detached: true, stdio: 'ignore' })
     .unref();
-  console.log('launching rekordbox — the virtual ports are up.\n');
+  say('launching rekordbox — the virtual ports are up.\n');
 }
+
+setTimeout(() => {
+  if (heardFromRb) return;
+  say('\n  nothing received from rekordbox yet. Check that:');
+  say('   - rekordbox was started AFTER this bridge');
+  say('   - Preferences > Controller > MIDI has a mapping on "NEON Bridge"');
+  say('   - a track with hot cues is loaded on the deck your unit is set to');
+}, 20000);
 
 console.log('ctrl-c to stop.' + (MONITOR ? '  monitor on.\n' : '\n'));
 
