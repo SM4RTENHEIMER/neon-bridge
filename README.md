@@ -5,6 +5,10 @@ Real RGB pad colours for the **Reloop Neon** in **rekordbox**.
 Map a Neon in rekordbox and the pads light up white. All of them, always. This
 fixes that.
 
+[![license: MIT](https://img.shields.io/badge/license-MIT-d96a00?style=flat-square)](LICENSE)
+![node 18+](https://img.shields.io/badge/node-18%2B-3c4048?style=flat-square)
+![platform: macOS and Linux](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Linux-3c4048?style=flat-square)
+
 <!-- ![Neon with coloured pads](docs/screenshot.jpg) -->
 
 ---
@@ -116,7 +120,7 @@ the software shows. Note this is not the same as rekordbox's track-colour
 palette; see [the notes on rekordbox mappings](docs/rekordbox-midi-mapping.md).
 
 Any of the 64 colours is available as `c(r, g, b)` with each channel 0-3. See
-the [colour chart](https://sm4rtenheimerdk.github.io/neon-bridge/) for all of them.
+the [colour chart](https://sm4rtenheimer.github.io/neon-bridge/) for all of them.
 
 `node neon-bridge.js --show` prints what every mapped function will get:
 
