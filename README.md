@@ -5,7 +5,7 @@ Real RGB pad colours for the **Reloop Neon** in **rekordbox**.
 Map a Neon in rekordbox and the pads light up white. All of them, always. This
 fixes that.
 
-![Eight pads on a Reloop Neon lit in green, orange, purple and cyan, with two left dim for unassigned functions](docs/screenshot.jpg)
+![Two Reloop Neons either side of a Pioneer rekordbox controller, pads lit in green, orange, purple and cyan, with rekordbox running on a MacBook alongside](docs/screenshot.jpg)
 
 [![license: MIT](https://img.shields.io/badge/license-MIT-d96a00?style=flat-square)](LICENSE)
 ![node 18+](https://img.shields.io/badge/node-18%2B-3c4048?style=flat-square)
