@@ -197,6 +197,18 @@ path.
 
 ---
 
+## Built on
+
+[`@julusian/midi`](https://github.com/Julusian/node-midi), Julian Waller's
+maintained fork of Justin Latimer's node-midi, which wraps Gary Scavone's
+[RtMidi](https://github.com/thestk/rtmidi).
+
+The call this project cannot do without is `openVirtualPort`. A bridge is a
+device that exists in no hardware, so without virtual ports there is nothing for
+rekordbox to map to and no way to sit between it and the Neon. That the bridge
+runs on macOS and Linux but not on Windows is RtMidi's shape as well, not a
+decision taken here.
+
 ## Disclaimer
 
 Not affiliated with, endorsed by, or connected to Reloop or AlphaTheta. Reloop
