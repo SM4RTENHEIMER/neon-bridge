@@ -5,11 +5,11 @@ Real RGB pad colours for the **Reloop Neon** in **rekordbox**.
 Map a Neon in rekordbox and the pads light up white. All of them, always. This
 fixes that.
 
+![Eight pads on a Reloop Neon lit in green, orange, purple and cyan, with two left dim for unassigned functions](docs/screenshot.jpg)
+
 [![license: MIT](https://img.shields.io/badge/license-MIT-d96a00?style=flat-square)](LICENSE)
 ![node 18+](https://img.shields.io/badge/node-18%2B-3c4048?style=flat-square)
 ![platform: macOS and Linux](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Linux-3c4048?style=flat-square)
-
-<!-- ![Neon with coloured pads](docs/screenshot.jpg) -->
 
 ---
 
@@ -143,6 +143,8 @@ reloads by itself.
 
 Everything above works the same with one Neon. If you have two, connect them
 with a USB cable each — not the link cable, and never both at once.
+
+![Two Reloop Neon units either side of a rekordbox controller, each showing its own deck's pad colours](docs/two-units.jpg)
 
 They are merged behind a single `NEON Bridge` device by default, so you keep one
 mapping. Two things make that work:
