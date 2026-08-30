@@ -2,6 +2,11 @@
   "name": "neon-bridge",
   "version": "1.0.0",
   "description": "Real RGB pad colours for the Reloop Neon in rekordbox, via a translating virtual MIDI device",
+  "homepage": "https://github.com/SM4RTENHEIMER/neon-bridge",
+  "repository": { "type": "git", "url": "git+https://github.com/SM4RTENHEIMER/neon-bridge.git" },
+  "bugs": "https://github.com/SM4RTENHEIMER/neon-bridge/issues",
+  "author": "SM4RTENHEIMER",
+  "license": "MIT",
   "main": "neon-bridge.js",
   "bin": { "neon-bridge": "neon-bridge.js" },
   "scripts": {
@@ -12,7 +17,7 @@
     "reloop", "neon", "rekordbox", "midi", "dj",
     "pad-colors", "rgb", "controller-mapping", "serato"
   ],
-  "license": "MIT",
   "engines": { "node": ">=18" },
+  "os": ["darwin", "linux"],
   "dependencies": { "@julusian/midi": "^3.8.1" }
 }
