@@ -119,8 +119,13 @@ Red, Cyan, Lime, Magenta, Green, Orange, Blue, Yellow — so the pads match what
 the software shows. Note this is not the same as rekordbox's track-colour
 palette; see [the notes on rekordbox mappings](docs/rekordbox-midi-mapping.md).
 
-Any of the 64 colours is available as `c(r, g, b)` with each channel 0-3. See
-the [colour chart](https://sm4rtenheimer.github.io/neon-bridge/) for all of them.
+Any of the 64 colours is available as `c(r, g, b)` with each channel 0-3:
+
+![The Neon's 64 colours as four blocks by red level, green down the side and blue across the top, with the velocity value under each swatch](docs/palette.png)
+
+The [colour chart](https://sm4rtenheimer.github.io/neon-bridge/) has these at full
+size, along with the sixteen the bridge names, the bit layout inside the velocity
+byte, and the note number for every pad in every performance mode.
 
 `node neon-bridge.js --show` prints what every mapped function will get:
 
@@ -143,8 +148,6 @@ reloads by itself.
 
 Everything above works the same with one Neon. If you have two, connect them
 with a USB cable each — not the link cable, and never both at once.
-
-![Two Reloop Neon units either side of a rekordbox controller, each showing its own deck's pad colours](docs/two-units.jpg)
 
 They are merged behind a single `NEON Bridge` device by default, so you keep one
 mapping. Two things make that work:
