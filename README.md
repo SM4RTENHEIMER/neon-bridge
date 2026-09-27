@@ -221,6 +221,15 @@ rekordbox writes on the author's own machine. Nothing here modifies, patches or
 circumvents anything — the bridge is an ordinary virtual MIDI device, the same
 category of tool as any MIDI translator.
 
+## Use at your own risk
+
+neon-bridge is provided as it is, without warranty of any kind (see the licence). It sends
+MIDI to your hardware, and `start.sh` replaces rekordbox's mapping file for the physical
+Neon (`NEON.midi.csv` in the MidiMappings folder) with an empty one, so keep a copy of your
+own mappings. Check that it behaves as you expect before you rely on it at a gig. The author
+takes no responsibility for damage, lost data or a set that goes wrong because of it, as far
+as the law allows.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
