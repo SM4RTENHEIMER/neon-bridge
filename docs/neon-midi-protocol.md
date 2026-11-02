@@ -128,6 +128,48 @@ ranges.
 
 ---
 
+## Buttons per deck
+
+Reloop's map does document these; they are collected here because the deck
+scheme is the same as for the pads and the exceptions are easy to miss.
+
+Deck-specific buttons use status `93` A, `94` B, `95` C, `96` D with the same
+note on every deck:
+
+| Note | Button |
+|---|---|
+| `01` | DECK (shift: `46`-`48`, varies by mode) |
+| `05` `06` `07` `08` | Sampler, Slicer, Hot Cue, Hot Loop — 1st layer |
+| `09` `0A` `0B` `0C` | the same, 2nd layer |
+| `0D` | sampler trigger |
+| `10` | CENSOR (shift `55`) |
+| `11` | SLIP (shift `56`) |
+| `12` | DECK SYNC (shift `57`) |
+
+Reloop's table prints `95 11` / `96 11` for DECK SYNC on decks C and D, which
+collides with SLIP; `95 12` / `96 12` is the consistent reading and is what the
+bridge's mapping uses.
+
+Three controls carry the deck in the **note** instead, all on status `96`/`B6`:
+
+| Control | A | B | C | D |
+|---|---|---|---|---|
+| TRAX push | `96 20` | `96 21` | `96 22` | `96 23` |
+| TRAX push, shift | `96 5F` on every deck | | | |
+| LOOP encoder turn | `B6 04` | `B6 05` | `B6 06` | `B6 07` |
+| LOOP encoder push | `96 24` | `96 25` | `96 26` | `96 27` |
+| LOOP turn, shift | `B6 49` | `B6 4A` | `B6 4B` | `B6 4C` |
+| LOOP push, shift | `96 63` | `96 64` | `96 65` | `96 66` |
+
+The TRAX encoder's rotation is `B6 00` on every deck and cannot be separated.
+The sampler bank buttons (`93 00`-`96 00`) and the MODE/REPEAT/SYNC buttons in
+sampler mode (`96 0D`-`96 0F`) are global.
+
+In a rekordbox mapping the first group is one row with the four deck columns
+filled in; the second group needs one row per deck.
+
+---
+
 ## The five status LEDs
 
 The small elongated LEDs above each pad in the top row, and below each pad in

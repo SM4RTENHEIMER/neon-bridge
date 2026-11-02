@@ -144,10 +144,14 @@ reloads by itself.
 
 ---
 
-## Two units
+## Two units, four decks
 
 Everything above works the same with one Neon. If you have two, connect them
 with a USB cable each — not the link cable, and never both at once.
+
+A unit can sit on any of rekordbox's four decks, not just A and B. The DECK
+buttons 1-4 on the left of the unit choose, and no SysEx is needed over USB —
+the unit simply moves everything it sends to that deck's status byte.
 
 They are merged behind a single `NEON Bridge` device by default, so you keep one
 mapping. Two things make that work:
@@ -158,15 +162,23 @@ mapping. Two things make that work:
   every deck's colours to both units therefore needs no routing — each unit
   shows the deck it is set to.
 
-In rekordbox this is one row per function, with the deck columns filled in:
+In rekordbox this is one row per function, with all four deck columns filled in:
 
 ```
-PAD1_HotCue,,DdjSxPad,,9710,9810,,,,9710,9810,,,Fast;,
-                        ↑     ↑
-                     deck A  deck B
+PAD1_HotCue,,DdjSxPad,,9710,9810,9910,9A10,,9710,9810,9910,9A10,Fast;,
+                        ↑     ↑    ↑    ↑
+                     deck A  B    C    D
 ```
 
-Set one unit to deck A and the other to deck B and both light up correctly.
+Pads go on `97`-`9A` and the per-deck buttons (CENSOR, SLIP, DECK SYNC, the
+performance-mode buttons) on `93`-`96`, same note on every deck. Three controls
+carry the deck in the note instead: the TRAX push is `96 20`-`96 23`, the LOOP
+encoder `B6 04`-`B6 07`, and its push `96 24`-`96 27`. Those need one row per
+deck rather than one row with four columns. The full table is in
+[docs/neon-midi-protocol.md](docs/neon-midi-protocol.md#buttons-per-deck).
+
+Set each unit to its own deck and both light up correctly; the bridge logs a
+warning if two units land on the same one.
 
 Pass `--separate` if you would rather have `NEON Bridge` and `NEON Bridge 2` as
 two devices with independent mappings. Worth knowing: both units report the same
